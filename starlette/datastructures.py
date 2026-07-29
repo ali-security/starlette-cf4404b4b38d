@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections.abc import ItemsView, Iterable, Iterator, KeysView, Mapping, MutableMapping, Sequence, ValuesView
 from shlex import shlex
 from typing import (
@@ -27,6 +28,9 @@ _KeyType = TypeVar("_KeyType")
 # that is, you can't do `Mapping[str, Animal]()["fido"] = Dog()`
 _CovariantValueType = TypeVar("_CovariantValueType", covariant=True)
 
+# Rejects Host header chars (/, ?, #, @, ...) that would let urlsplit produce a path differing from scope["path"].
+_HOST_RE = re.compile(r"^([a-z0-9.-]+|\[[a-f0-9]*:[a-f0-9.:]+\])(?::[0-9]+)?$", re.IGNORECASE)
+
 
 class URL:
     def __init__(
@@ -49,7 +53,7 @@ class URL:
                     host_header = value.decode("latin-1")
                     break
 
-            if host_header is not None:
+            if host_header is not None and _HOST_RE.fullmatch(host_header):
                 url = f"{scheme}://{host_header}{path}"
             elif server is None:
                 url = path
