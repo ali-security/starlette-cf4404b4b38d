@@ -1,20 +1,16 @@
----
 name: Test Suite
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
+  workflow_dispatch:
 
 jobs:
   tests:
-    name: "Python ${{ matrix.python-version }}"
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
 
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -32,13 +28,13 @@ jobs:
         run: scripts/check
         if: ${{ matrix.python-version != '3.14' }}
 
-      - name: "Build package & docs"
+      - name: Build package & docs
         run: scripts/build
 
-      - name: "Run tests"
+      - name: Run tests
         run: scripts/test
 
-      - name: "Enforce coverage"
+      - name: Enforce coverage
         run: scripts/coverage
 
   # https://github.com/marketplace/actions/alls-green#why
